@@ -40,7 +40,6 @@ The application consists of:
 * **Model Performance Graph:** Shows accuracy (Actual vs Predicted).
 * **Dynamic Graph:** Shows how power varies with irradiation.
 
----
 
 ## User Interface
 
