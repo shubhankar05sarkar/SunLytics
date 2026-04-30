@@ -56,7 +56,15 @@ The application consists of:
 
 ## Dataset
 
-Dataset used: **Solar Power Generation Data (Kaggle)**
+Dataset used: **Solar Power Generation Data**
+
+* **Source:** Kaggle
+* **Author:** Anikannal
+* **Link:** https://www.kaggle.com/datasets/anikannal/solar-power-generation-data
+
+### Description:
+
+This dataset contains solar power generation and weather sensor data collected from two solar power plants in India over a period of 34 days. It includes both generation data and environmental measurements used for predictive modeling.
 
 ### Features:
 
@@ -68,6 +76,12 @@ Dataset used: **Solar Power Generation Data (Kaggle)**
 ### Target:
 
 * Power Output (kW)
+
+### Notes:
+
+* Data represents real-world solar plant conditions
+* Suitable for regression-based prediction tasks
+* Includes both environmental and temporal features
 
 ---
 
