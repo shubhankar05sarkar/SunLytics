@@ -117,5 +117,5 @@ This dataset contains solar power generation and weather sensor data collected f
 
 ## Author
 
-Created with ❤️ by **Shubhankar Sarkar**
+Created with ❤️ by **Shubhankar Sarkar**<br>
 [GitHub Profile](https://github.com/shubhankar05sarkar)
