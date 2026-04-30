@@ -97,7 +97,6 @@ This dataset contains solar power generation and weather sensor data collected f
 * Handles non-linear relationships
 * More robust and accurate
 
----
 
 ## Results
 
