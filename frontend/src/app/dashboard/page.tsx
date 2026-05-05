@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { predictPower, getTestData } from '@/services/api';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ScatterChart, Scatter } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ScatterChart, Scatter, ReferenceDot, ReferenceLine, ComposedChart, Legend } from 'recharts';
 import { Settings2, Activity, Loader2, AlertCircle, Info, Zap, Download, BarChart3 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -51,22 +51,17 @@ export default function Dashboard() {
   const handleExport = () => {
     if (!prediction) return;
     
-    let csvContent = "Parameter,Value\n";
-    Object.entries(inputs).forEach(([key, value]) => {
-      csvContent += `${key},${value}\n`;
-    });
-    csvContent += `Predicted Power (kW),${prediction}\n\n`;
-    
-    csvContent += "--- Impact Curve ---\n";
-    csvContent += "Irradiation,Power\n";
-    curveData.forEach((row) => {
-      csvContent += `${row.irradiation},${row.power}\n`;
-    });
+    const exportData = {
+      parameters: inputs,
+      prediction: prediction,
+      impact_curve: curveData
+    };
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const jsonContent = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonContent], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = `sunlytics_prediction.csv`; a.click();
+    a.href = url; a.download = `sunlytics_prediction.json`; a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -85,7 +80,7 @@ export default function Dashboard() {
           {prediction !== null && (
              <button onClick={handleExport} className="flex items-center space-x-2 text-sm text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white px-4 py-2 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-white/30 dark:border-slate-700/50 rounded-xl transition-colors shadow-lg font-semibold">
                <Download className="w-4 h-4" />
-               <span className="hidden sm:inline">Export CSV</span>
+               <span className="hidden sm:inline">Export JSON</span>
              </button>
           )}
           <select 
@@ -202,19 +197,34 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className={`${cardClass} h-[400px] flex flex-col`}>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center"><Activity className="w-5 h-5 mr-2 text-blue-500"/> Impact Curve</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center"><Activity className="w-5 h-5 mr-2 text-blue-500"/> Effect of Irradiation</h3>
               <div className="flex-1 min-h-0 w-full relative">
                 {curveData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={curveData} key={`line-${predictionKey}`} margin={{ left: 0, bottom: 0, top: 10, right: 10 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-400/30 dark:text-slate-600/30" />
-                      <XAxis dataKey="irradiation" stroke="currentColor" className="text-slate-600 dark:text-slate-400 text-xs font-bold" tickMargin={10} />
+                      <XAxis dataKey="irradiation" type="number" domain={['dataMin', 'dataMax']} stroke="currentColor" className="text-slate-600 dark:text-slate-400 text-xs font-bold" tickMargin={10} />
                       <YAxis stroke="currentColor" className="text-slate-600 dark:text-slate-400 text-xs font-bold" tickMargin={10} />
                       <RechartsTooltip 
                         contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)', borderColor: 'rgba(255,255,255,0.15)', borderRadius: '16px', color: '#fff', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)' }}
                         itemStyle={{ color: '#60a5fa', fontWeight: 'bold' }}
                       />
-                      <Line type="monotone" dataKey="power" stroke="#3b82f6" strokeWidth={4} dot={{r: 0}} activeDot={{r: 8, fill: '#3b82f6', stroke: '#fff', strokeWidth: 2}} animationDuration={1200} />
+                      <Legend 
+                        content={() => (
+                          <div className="flex justify-center space-x-6 text-xs font-bold text-slate-400 pb-2">
+                            <div className="flex items-center"><span className="w-4 h-1 bg-blue-500 rounded-full mr-2"></span>Prediction Curve</div>
+                            <div className="flex items-center"><span className="w-3 h-3 bg-red-500 rounded-full mr-2"></span>Your Input</div>
+                          </div>
+                        )}
+                        verticalAlign="top" height={36}
+                      />
+                      <Line name="Prediction Curve" type="monotone" dataKey="power" stroke="#3b82f6" strokeWidth={4} dot={{r: 0}} activeDot={{r: 8, fill: '#3b82f6', stroke: '#fff', strokeWidth: 2}} animationDuration={1200} />
+                      {prediction !== null && (
+                        <>
+                          <ReferenceLine x={inputs.irradiation} stroke="#ef4444" strokeWidth={2} strokeDasharray="4 4" opacity={0.8} />
+                          <ReferenceDot x={inputs.irradiation} y={prediction} r={7} fill="#ef4444" stroke="#fff" strokeWidth={2} />
+                        </>
+                      )}
                     </LineChart>
                   </ResponsiveContainer>
                 ) : (
@@ -235,16 +245,30 @@ export default function Dashboard() {
                   </div>
                 ) : scatterData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
-                    <ScatterChart margin={{ left: 0, bottom: 0, top: 10, right: 10 }}>
+                    <ComposedChart margin={{ left: 0, bottom: 0, top: 10, right: 10 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-400/30 dark:text-slate-600/30" />
-                      <XAxis dataKey="actual" type="number" stroke="currentColor" className="text-slate-600 dark:text-slate-400 text-xs font-bold" tickMargin={10} />
-                      <YAxis dataKey="predicted" type="number" stroke="currentColor" className="text-slate-600 dark:text-slate-400 text-xs font-bold" tickMargin={10} />
+                      <XAxis dataKey="actual" type="number" stroke="currentColor" className="text-slate-600 dark:text-slate-400 text-xs font-bold" tickMargin={10} domain={[0, 1400]} />
+                      <YAxis dataKey="predicted" type="number" stroke="currentColor" className="text-slate-600 dark:text-slate-400 text-xs font-bold" tickMargin={10} domain={[0, 1400]} />
                       <RechartsTooltip 
                         cursor={{ strokeDasharray: '3 3', stroke: 'rgba(148, 163, 184, 0.5)' }} 
                         contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)', borderColor: 'rgba(255,255,255,0.15)', borderRadius: '16px', color: '#fff', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)' }}
                       />
-                      <Scatter name="Power" data={scatterData} fill="#3b82f6" fillOpacity={0.7} animationDuration={1200} />
-                    </ScatterChart>
+                      <Legend 
+                        content={() => (
+                          <div className="flex justify-center space-x-6 text-xs font-bold text-slate-400 pb-2">
+                            <div className="flex items-center"><span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>Predicted vs Actual</div>
+                            <div className="flex items-center"><span className="w-4 h-1 bg-red-500 rounded-full mr-2"></span>Perfect Prediction</div>
+                            <div className="flex items-center"><span className="w-4 h-1 border-t-2 border-dashed border-red-500 mr-2"></span>Your Input</div>
+                          </div>
+                        )}
+                        verticalAlign="top" height={36}
+                      />
+                      <Scatter name="Predicted vs Actual" data={scatterData} fill="#3b82f6" fillOpacity={0.7} animationDuration={1200} />
+                      <Line name="Perfect Prediction" data={[{actual: 0, predicted: 0}, {actual: 1400, predicted: 1400}]} type="linear" dataKey="predicted" stroke="#ef4444" strokeWidth={2} dot={false} activeDot={false} isAnimationActive={false} />
+                      {prediction !== null && (
+                        <ReferenceLine y={prediction} stroke="#ef4444" strokeWidth={2} strokeDasharray="4 4" opacity={0.8} />
+                      )}
+                    </ComposedChart>
                   </ResponsiveContainer>
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center text-slate-500 dark:text-slate-500 font-bold">
