@@ -11,10 +11,7 @@ export const predictPower = async (data: any) => {
   return response.data;
 };
 
-export const getWeather = async (lat: number = 28.6139, lon: number = 77.2090) => {
-  const response = await api.get(`/weather?lat=${lat}&lon=${lon}`);
-  return response.data;
-};
+
 
 export const getTestData = async (modelType: string = 'rf') => {
   const response = await api.get(`/test-data?model_type=${modelType}`);

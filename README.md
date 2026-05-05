@@ -1,119 +1,75 @@
-# Solar Power Prediction using Machine Learning
+# SunLytics: Intelligent Solar Power Forecasting ☀️⚡
 
-A web-based application that predicts solar power output based on environmental conditions using Machine Learning.
+SunLytics is a production-grade, full-stack Machine Learning application designed to predict and analyze solar power generation in real-time. By utilizing environmental and temporal data, SunLytics provides highly accurate forecasts of active power output, allowing solar plant operators to optimize grid management and efficiency.
 
----
+## 🏗️ System Architecture
 
-## Features
+The project is decoupled into three primary layers:
 
-* **Accurate Prediction:** Predict solar power output (in kW) using a trained ML model.
-* **Interactive Inputs:** Adjust temperature, irradiation, and time dynamically.
-* **Real-Time Results:** Get instant predictions with a single click.
-* **Data Visualization:** View model performance and irradiation impact through graphs.
+1. **Machine Learning Pipeline (`/src` & `/ml_pipeline`)**
+   - **Models**: Includes trained `Random Forest` and `Linear Regression` models.
+   - **Features**: Processes features like Ambient Temperature, Module Temperature, Solar Irradiation, and Temporal data (Hour, Day, Month).
+   - **Storage**: Pre-trained pipelines are saved as `.pkl` objects using `joblib`.
 
----
+2. **Backend API (`/backend`)**
+   - **Framework**: FastAPI for blazing-fast, asynchronous request handling.
+   - **Features**: 
+     - Loads ML models securely into memory on startup.
+     - Exposes `/predict` endpoint to process live parameter inputs and return power predictions.
+     - Dynamically computes "Impact Curves" by sweeping irradiation values across the model.
 
-## How to Use:
-
-1. **Enter Inputs:** Provide values for:
-
-   * Ambient Temperature
-   * Module Temperature
-   * Irradiation
-   * Hour, Day, Month
-
-2. **Click Predict:** Press the **Predict Power** button.
-
-3. **View Output:**
-
-   * Predicted power output (in kW) will be displayed.
-   * Graphs will update automatically.
+3. **Frontend Dashboard (`/frontend`)**
+   - **Framework**: Next.js 15 (React) with App Router.
+   - **Styling**: Tailwind CSS v4 with a custom, highly polished **Glassmorphism** UI.
+   - **Visualizations**: `recharts` for dynamic data rendering.
+   - **Theming**: Complete Dark/Light/System theme toggling via `next-themes`.
 
 ---
 
-## User Interface Overview
+## 📊 Domain Concepts & Visualizations
 
-The application consists of:
+To fully understand the dashboard, it is important to grasp the underlying solar energy concepts that power the predictions:
 
-* **Input Panel:** Enter environmental parameters.
-* **Prediction Output:** Displays predicted solar power.
-* **Model Performance Graph:** Shows accuracy (Actual vs Predicted).
-* **Dynamic Graph:** Shows how power varies with irradiation.
+### 1. What is Irradiation (kW/m²)?
+**Irradiation** (specifically Solar Irradiance) is the measure of solar power (sunlight) hitting a specific area over a given time. In this application, it is measured in kilowatts per square meter (kW/m²). 
+- **Why it matters**: It is the single most critical factor in solar power generation. If there is no irradiation (e.g., at night or under heavy cloud cover), the solar panels cannot generate power, regardless of the temperature.
 
+### 2. The Impact Curve (Line Chart)
+The **Impact Curve** is a dynamic simulation. When you hit "Generate Prediction", the backend freezes your current temperature and time parameters, and sweeps the *Irradiation* value from `0.0` to `1.2`. 
+- **What it shows**: It visualizes exactly how your solar panels will perform under changing sunlight conditions at this exact moment in time. You will typically see a steep linear climb (as sunlight increases, power increases) that eventually plateaus or drops if the panels reach maximum capacity or overheat.
 
-## User Interface
-
-![Solar App UI - Inputs](https://github.com/shubhankar05sarkar/SunLytics/blob/afa21c17e158787005f8e886020fc751abe8323c/sunlytics-ui.png)<br>
-*A clean and interactive interface where users input weather parameters and get real-time solar power predictions.*
-
-<br>
-
-![Solar App UI - Graphs](https://github.com/shubhankar05sarkar/SunLytics/blob/afa21c17e158787005f8e886020fc751abe8323c/sunlytics-graphs.png)<br>
-*Visualization dashboard showing model accuracy (left) and the relationship between irradiation and power output (right).*
+### 3. Actual vs Predicted (Scatter Plot)
+The **Validation Scatter Plot** shows the historical performance of the currently selected machine learning model.
+- **What it shows**: It plots the *Actual* historical power output (X-axis) against what the model *Predicted* the output would be (Y-axis). 
+- **How to read it**: In a perfect model, every dot would fall exactly on a perfectly straight 45-degree diagonal line. The tighter the dots cluster around the invisible diagonal line, the higher the accuracy of the model!
 
 ---
 
-## Dataset
+## 🚀 How to Run the Application
 
-Dataset used: **Solar Power Generation Data**
+You need to start both the FastAPI backend and the Next.js frontend simultaneously.
 
-* **Source:** Kaggle
-* **Author:** Anikannal
-* **Link:** https://www.kaggle.com/datasets/anikannal/solar-power-generation-data
+### 1. Start the Backend
+Open a terminal and navigate to the backend directory:
+```powershell
+cd backend
+pip install -r requirements.txt
+python -m uvicorn main:app --reload --port 8000
+```
+*The API will be live at `http://localhost:8000`.*
 
-### Description:
-
-This dataset contains solar power generation and weather sensor data collected from two solar power plants in India over a period of 34 days. It includes both generation data and environmental measurements used for predictive modeling.
-
-### Features:
-
-* Ambient Temperature (°C)
-* Module Temperature (°C)
-* Irradiation (kW/m²)
-* Date & Time
-
-### Target:
-
-* Power Output (kW)
-
-### Notes:
-
-* Data represents real-world solar plant conditions
-* Suitable for regression-based prediction tasks
-* Includes both environmental and temporal features
+### 2. Start the Frontend
+Open a **new** terminal window and navigate to the frontend directory:
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+*The Dashboard will be live at `http://localhost:3000`.*
 
 ---
 
-## Machine Learning Models Used
-
-### 1. Linear Regression
-
-* Used as baseline model
-* Simpler but less accurate
-
-### 2. Random Forest Regressor (Final Model)
-
-* Handles non-linear relationships
-* More robust and accurate
-
-
-## Results
-
-| Model             | MAE       | R² Score |
-| ----------------- | --------- | -------- |
-| Linear Regression | ~100 kW   | ~0.81    |
-| Random Forest     | ~40.57 kW | ~0.93    |
-
-### Interpretation:
-
-* Random Forest significantly reduces prediction error
-* High R² score indicates strong model performance
-* Better suited for real-world solar data
-
----
-
-
-## Author
-
-Created with ❤️ by **Shubhankar Sarkar**<br>
-[GitHub Profile](https://github.com/shubhankar05sarkar)
+## 🛠️ Tech Stack
+- **ML**: Python, Pandas, Scikit-Learn, Joblib
+- **Backend**: FastAPI, Uvicorn, Pydantic
+- **Frontend**: Next.js, React, Tailwind CSS, Recharts, Framer Motion, Lucide Icons
