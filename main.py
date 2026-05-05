@@ -26,7 +26,8 @@ def main():
     plt.xlabel("Actual Power")
     plt.ylabel("Predicted Power")
     plt.title("Actual vs Predicted Power")
-    plt.show()
+    plt.savefig("Output/actual_vs_predicted.png")
+    plt.close()
 
 if __name__ == "__main__":
     main()

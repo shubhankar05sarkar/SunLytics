@@ -1,0 +1,7 @@
+Linear Regression Performance:
+MAE: 95.38595116808372
+R2 Score: 0.84257663959745
+
+Random Forest Performance:
+MAE: 39.893934872857486
+R2 Score: 0.9440696965087321
