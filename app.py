@@ -1,3 +1,5 @@
+# to run this project --> streamlit run app.py
+
 import streamlit as st
 import joblib
 import pandas as pd
