@@ -1,8 +1,8 @@
-# SunLytics: Intelligent Solar Power Forecasting ☀️⚡
+# SunLytics: Intelligent Solar Power Forecasting
 
 SunLytics is a production-grade, full-stack Machine Learning application designed to predict and analyze solar power generation in real-time. By utilizing environmental and temporal data, SunLytics provides highly accurate forecasts of active power output, allowing solar plant operators to optimize grid management and efficiency.
 
-## 🏗️ System Architecture
+## System Architecture
 
 The project is decoupled into three primary layers:
 
@@ -26,7 +26,7 @@ The project is decoupled into three primary layers:
 
 ---
 
-## 📊 Domain Concepts & Visualizations
+## Domain Concepts & Visualizations
 
 To fully understand the dashboard, it is important to grasp the underlying solar energy concepts that power the predictions:
 
@@ -45,7 +45,7 @@ The **Validation Scatter Plot** shows the historical performance of the currentl
 
 ---
 
-## 🚀 How to Run the Application
+## How to Run the Application
 
 You need to start both the FastAPI backend and the Next.js frontend simultaneously.
 
@@ -69,7 +69,7 @@ npm run dev
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 - **ML**: Python, Pandas, Scikit-Learn, Joblib
 - **Backend**: FastAPI, Uvicorn, Pydantic
 - **Frontend**: Next.js, React, Tailwind CSS, Recharts, Framer Motion, Lucide Icons
