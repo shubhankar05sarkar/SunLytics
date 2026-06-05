@@ -76,3 +76,4 @@ npm run dev
 
 - ### 3. Contributions
 - Priyansh Verma
+- Jainish Jain
