@@ -73,3 +73,6 @@ npm run dev
 - **ML**: Python, Pandas, Scikit-Learn, Joblib
 - **Backend**: FastAPI, Uvicorn, Pydantic
 - **Frontend**: Next.js, React, Tailwind CSS, Recharts, Framer Motion, Lucide Icons
+
+- ### 3. Contributions
+- Priyansh Verma
